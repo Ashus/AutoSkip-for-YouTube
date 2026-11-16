@@ -171,6 +171,17 @@ npm run dev
 
 ### Build Extension
 
+Chromium, Firefox, and development packages omit `assets/screenshots`, which is
+only used by documentation. Original images and relative Markdown links remain
+unchanged in the repository; extension icons are still included.
+
+The packaged README and any bundled Markdown files link to screenshot images on
+`raw.githubusercontent.com`, using the latest images from the `main` branch.
+GitHub Actions supplies the repository through `GITHUB_REPOSITORY`; local
+builds use the Git `origin` remote. Source archives without Git metadata
+must provide `GITHUB_REPOSITORY`. Displaying packaged documentation
+images requires internet access and a Markdown viewer that permits remote images.
+
 ```bash
 
 npm run build

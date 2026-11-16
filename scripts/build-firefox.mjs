@@ -2,6 +2,7 @@ import { build } from "vite";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { packageExtension } from "./package-extension.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const outDir = path.join(root, "dist-firefox");
@@ -21,6 +22,7 @@ for (const [index, config] of [
 }
 
 const manifest = JSON.parse(await readFile(path.join(root, "public/manifest.json"), "utf8"));
+await packageExtension(outDir);
 manifest.background = { scripts: ["background.js"] };
 manifest.permissions = manifest.permissions.filter((permission) => permission !== "debugger");
 manifest.browser_specific_settings.gecko.data_collection_permissions = { required: ["none"] };
