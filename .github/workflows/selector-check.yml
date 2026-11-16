@@ -18,7 +18,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - name: Run selector health tests
-        run: xvfb-run -a npx playwright test
+        run: xvfb-run -a npm run test:live
       - name: Upload test diagnostics
         if: always()
         uses: actions/upload-artifact@v4

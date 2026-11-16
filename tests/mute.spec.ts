@@ -3,15 +3,14 @@ import path from "node:path";
 import { readFile } from "node:fs/promises";
 
 test("ad muting, audio restoration and skipping do not wait for animation frames or the fallback interval", async ({ page }) => {
+  // Exercise the content script on a controlled playback surface without network access.
+  await page.route("**/*", (route) => route.abort());
+  await page.route("https://www.youtube.com/watch?v=aqz-KE-bpKQ", (route) => route.fulfill({
+    contentType: "text/html",
+    body: '<!doctype html><html><body><div id="movie_player"><video class="html5-main-video" src="data:video/mp4;base64,"></video></div></body></html>',
+  }));
   await page.goto("https://www.youtube.com/watch?v=aqz-KE-bpKQ", {
     waitUntil: "domcontentloaded",
-  });
-  await page.waitForFunction(() => {
-    const player = document.querySelector("#movie_player");
-    const video = player?.querySelector("video");
-    return video && (video.readyState > 0 || !!video.currentSrc || !!video.src)
-      && !player?.classList.contains("ad-showing")
-      && !player?.classList.contains("ad-interrupting");
   });
   await page.evaluate(() => {
     const video = document.querySelector<HTMLVideoElement>("#movie_player video")!;

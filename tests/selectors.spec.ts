@@ -2,23 +2,14 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkLiveSkipControl } from "./helpers/selectorHealth";
+import { checkLiveSkipControl, waitForYouTubePlayer } from "./helpers/selectorHealth";
 import {
-  AD_SKIP_SELECTORS, AD_INDICATOR_SELECTORS, BLUR_OVERLAY_ID,
-  FALLBACK_SKIP_SELECTORS, OVERLAY_CLOSE_SELECTORS, PLAYER_SELECTOR, SURVEY_SKIP_SELECTORS,
+  BLUR_OVERLAY_ID, PLAYER_SELECTOR,
 } from "../src/extension/shared/skipSelectors";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.resolve(here, "../dist");
 const SAMPLE_VIDEO = "https://www.youtube.com/watch?v=aqz-KE-bpKQ";
-
-test("all production selectors have valid CSS syntax", async ({ page }) => {
-  const invalid = await page.evaluate((selectors) => selectors.filter((selector) => {
-    try { document.querySelectorAll(selector); return false; } catch { return true; }
-  }), [...AD_SKIP_SELECTORS, ...SURVEY_SKIP_SELECTORS, ...OVERLAY_CLOSE_SELECTORS,
-    ...FALLBACK_SKIP_SELECTORS, ...AD_INDICATOR_SELECTORS]);
-  expect(invalid).toEqual([]);
-});
 
 test("live YouTube ad controls match selectors and activate the extension", async ({ playwright }, testInfo) => {
   test.setTimeout(120000);
@@ -42,7 +33,7 @@ test("live YouTube ad controls match selectors and activate the extension", asyn
     const consent = page.getByRole("button", { name: /^(Reject all|Accept all)$/i });
     await consent.first().waitFor({ timeout: 5000 }).catch(() => undefined);
     if (await consent.first().isVisible()) await consent.first().click();
-    await expect(page.locator(PLAYER_SELECTOR)).toBeVisible({ timeout: 30000 });
+    await waitForYouTubePlayer(page);
     await expect.poll(() => logs.some((line) => line.includes("[autoskip]") && line.includes("Started watching for ads")),
       { message: "The extension content script must actually start" }).toBe(true);
     // A real user gesture also avoids mistaking blocked autoplay for broken selectors.

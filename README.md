@@ -209,17 +209,29 @@ pull requests, pushes to `main`, version tags, and manual runs. Download the
 `autoskip-firefox` artifact from the workflow run. This is an unsigned build,
 not a signed Firefox release.
 
-### Run Selector Health Tests
+### Run Regression Tests
 
 ```bash
 
 npx playwright install --with-deps chromium
-npx playwright test
+npm run build
+npm test
 
 ```
 
-The scheduled selector health workflow uses Playwright Chromium for every test;
-no separately installed Google Chrome is required. The live check discovers an
+The **Regression tests** workflow runs on pull requests and pushes to `main`.
+It checks our code on controlled pages without depending on live YouTube ads or
+video loading. All browser tests use Playwright Chromium; no separately installed
+Google Chrome is required.
+
+### Run Live YouTube Checks
+
+```bash
+npm run test:live
+```
+
+The scheduled selector health workflow runs only the live YouTube project.
+It discovers an
 English Skip control independently of the production class selectors, then
 requires those selectors and the ad state classes to match the observed player.
 It also verifies that the content script started and the blur overlay exists.
@@ -227,6 +239,8 @@ It also verifies that the content script started and the blur overlay exists.
 If YouTube serves no skippable ad during the observation window, the live check
 fails with `INCONCLUSIVE` rather than claiming the selectors are healthy. Consent,
 network failures, and ad availability can also make the live check inconclusive.
+An unavailable or hidden player is reported separately from an observation window
+without a Skip control, so a blocked playback page is not mistaken for missing ads.
 Failed runs include console output, a screenshot, and page HTML in the
 `selector-health-report` CI artifact. A failed run requires investigation; it does
 not by itself prove that YouTube renamed a class.

@@ -1,6 +1,22 @@
 import { errors, type Page } from "@playwright/test";
 import { AD_CLASS_NAMES, AD_SKIP_SELECTORS, PLAYER_SELECTOR } from "../../src/extension/shared/skipSelectors";
 
+export async function waitForYouTubePlayer(page: Page, timeout = 30000) {
+  try {
+    await page.locator(PLAYER_SELECTOR).waitFor({ state: "visible", timeout });
+  } catch (error) {
+    if (!(error instanceof errors.TimeoutError)) throw error;
+    const state = await page.evaluate((selector) => {
+      const player = document.querySelector(selector);
+      const rect = player?.getBoundingClientRect();
+      return { url: location.href, title: document.title, playerFound: !!player,
+        playerClasses: player?.className, width: rect?.width, height: rect?.height,
+        pageText: document.body?.innerText.slice(0, 1000) };
+    }, PLAYER_SELECTOR);
+    throw new Error(`INCONCLUSIVE: YouTube player unavailable before ad observation. This is not a run without ads; the playback page did not become usable. ${JSON.stringify(state)}`, { cause: error });
+  }
+}
+
 export async function checkLiveSkipControl(
   page: Page,
   selectors: readonly string[] = AD_SKIP_SELECTORS,

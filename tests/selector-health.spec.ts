@@ -1,5 +1,27 @@
 import { test, expect } from "@playwright/test";
-import { checkLiveSkipControl } from "./helpers/selectorHealth";
+import { checkLiveSkipControl, waitForYouTubePlayer } from "./helpers/selectorHealth";
+import {
+  AD_SKIP_SELECTORS, AD_INDICATOR_SELECTORS, FALLBACK_SKIP_SELECTORS,
+  OVERLAY_CLOSE_SELECTORS, SURVEY_SKIP_SELECTORS,
+} from "../src/extension/shared/skipSelectors";
+
+test("all production selectors have valid CSS syntax", async ({ page }) => {
+  const invalid = await page.evaluate((selectors) => selectors.filter((selector) => {
+    try { document.querySelectorAll(selector); return false; } catch { return true; }
+  }), [...AD_SKIP_SELECTORS, ...SURVEY_SKIP_SELECTORS, ...OVERLAY_CLOSE_SELECTORS,
+    ...FALLBACK_SKIP_SELECTORS, ...AD_INDICATOR_SELECTORS]);
+  expect(invalid).toEqual([]);
+});
+
+test("a hidden player is reported separately from missing ads", async ({ page }) => {
+  await page.setContent('<div id="movie_player" hidden><video></video></div>');
+  await expect(waitForYouTubePlayer(page, 250)).rejects.toThrow("YouTube player unavailable before ad observation");
+});
+
+test("a visible player can proceed to ad observation", async ({ page }) => {
+  await page.setContent('<div id="movie_player"><video></video></div>');
+  await expect(waitForYouTubePlayer(page, 1000)).resolves.toBeUndefined();
+});
 
 test("selector health checks require a matching real control", async ({ page }) => {
   await page.setContent('<div id="movie_player" class="ad-showing"><button class="ytp-skip-ad-button">Skip</button></div>');
