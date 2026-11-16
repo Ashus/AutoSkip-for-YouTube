@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=google-chrome" />
   <img src="https://img.shields.io/badge/React-19.2.0-61dafb?style=for-the-badge&logo=react" />
   <img src="https://img.shields.io/badge/TypeScript-5.9.3-3178c6?style=for-the-badge&logo=typescript" />
-  <img src="https://img.shields.io/badge/Vite-7.2.2-646CFF?style=for-the-badge&logo=vite" />
+  <img src="https://img.shields.io/badge/Vite-8.3.8-646CFF?style=for-the-badge&logo=vite" />
 </p>
 
 ---
@@ -64,7 +64,7 @@ It **does not remove, block, or hide ads**.
 
 | Category | Tools & Libraries |
 |-------|------------------|
-| **Core** | React 19.2.0, TypeScript 5.9.3, Vite 7.2.2 |
+| **Core** | React 19.2.0, TypeScript 5.9.3, Vite 8.3.8 |
 | **Extension APIs** | Chrome Extensions API (`storage`, `debugger`) |
 | **UI** | Tailwind CSS, Shadcn / UI, Lucide Icons |
 | **State & Logic** | Custom logic + Chrome storage (`sync` for settings, `local` for the counter) |
